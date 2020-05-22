@@ -1,5 +1,6 @@
 /// Mark needed library dependency here
 /// #include <...>
+#include <Wire.h>
 
 /**
  * The difference of the return value of getCurrentTime() function between one minute.
@@ -22,19 +23,21 @@ unsigned long prevCycleTime;
 int cycleCount = 0;
 
 /**
- * The change in the stepper motor degree for rotation.
+ * The change in the stepper motor degree for one rotation.
  * This is NOT the step of the stepper motor. It is the resolution of rotation.
  */
 const int DEG_DELTA = 3;
 // TODO need confirmation
 
-const int VMAX = 0, VMIN = -120; 
 const int HMAX = 0, HMIN = -180;
+const int VMAX = 0, VMIN = -120; 
 
 int horizontalDegree = 0, verticalDegree = 0; // current horizontal/vertical degree. Init position marks (0, 0); clockwise < 0, counterclockwise > 0.
 int maxIntensity, maxHDeg, maxVDeg, maxTime; // maximum light intensity, the corresponding degrees, and the corresponding time.
 int horizontalDirection = -1, verticalDirection = -1; // rotation direction
 bool flagH = false, flagV = false; // marks if a horizontal-/vertical-rotation is finished. true - finished; false - not finished.
+
+/* TODO put all other constants / pins / variables here */
 
 /**
  * Initializes the rotation variables.
@@ -70,7 +73,7 @@ unsigned long getCurrentTime() {
 /**
  * Rotates the desired motor.
  * @param id The number of the desired motor. 1 refers to the horizontal rotation, and 2 refers to the vertical rotation.
- * @param deg The degree of rotation for the motor, in degree notation, integer. Counterclockwise: deg > 0, clockwide: `deg < 0`.
+ * @param deg The degree of rotation for the motor, in degree notation, integer. Counterclockwise: deg > 0, clockwide: deg < 0.
  */
 void rotateMotor(int deg, int id) {
     /* TODO Implementation */ 
@@ -78,7 +81,7 @@ void rotateMotor(int deg, int id) {
 
 /**
  * Read the intensity value by the id of the intensity sensor.
- * @param id The id of the desired intensity sensor.
+ * @param id The id of the desired intensity sensor (1~4).
  * @return The current intensity value of the desired sensor.
  */
 double readIntensity(int id) {
@@ -86,17 +89,33 @@ double readIntensity(int id) {
 }
 
 /**
+ * Read the current from the current sensor.
+ * @return Current value.
+ */
+double readCurrent() {
+    /* TODO Implementation */
+}
+
+/**
+ * Read the voltage from the current sensor.
+ * @return Voltage magnitude.
+ */
+double readVoltage() {
+    /* TODO Implementation */
+}
+
+/**
  * Saves the value to the SD card along with the index of sensor, corresponding time, and cycle number.
  * @param value The value to be saved.
  * @param index Index of sensor. The numbers 1, 2, 3 mark inert intensity sensors;
- * 4 marks the moving sensor; 5, 6 marks the degrees of different stepper motors; 7 marks error.
+ * 4 marks the moving sensor; 5, 6 marks the degrees of different stepper motors; 7 marks current; 8 marks voltage;
+ * 9 marks error.
  * @param time Corresponding time of the value.
  * @param cycle Id of cycle this turn.
- * 
  */
 void saveValue(double value, double index, unsigned long time, int cycle) {
     /* TODO Implementation */
-    /// !! IMPORTANT !! Remember to store all four parameters.
+    /// !! IMPORTANT !! Remember to store all four parameters. (-1, value, index, time, cycle)
 }
 
 void setup() {
@@ -115,12 +134,14 @@ void loop() {
         saveValue(readIntensity(1), 1, getCurrentTime(), cycleCount); // sensor 1 saving data
         saveValue(readIntensity(2), 2, getCurrentTime(), cycleCount); // sensor 2 saving data
         saveValue(readIntensity(3), 3, getCurrentTime(), cycleCount); // sensor 3 saving data
+        saveValue(readCurrent(), 7, getCurrentTime(), cycleCount); // save current data
+        saveValue(readVoltage(), 8, getCurrentTime(), cycleCount); // save voltage data
         if (maxHDeg != -1000 && maxVDeg != -1000 && maxIntensity != 0) {
             saveValue(maxIntensity, 4, maxTime, cycleCount); // rotating sensor saving max data, along with time
             saveValue(maxHDeg, 5, maxTime, cycleCount); // horizontal stepper motor saving degree data, along with time
             saveValue(maxVDeg, 6, maxTime, cycleCount); // vertical stepper motor saving degree data, along with time
         } else {
-            saveValue(-1, 7, getCurrentTime(), cycleCount);
+            saveValue(-1, 9, getCurrentTime(), cycleCount);
         }
 
         initRotate(); // initialize rotation values
