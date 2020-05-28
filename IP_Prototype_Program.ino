@@ -29,12 +29,11 @@ int cycleCount = 0;
  * This is NOT the step of the stepper motor. It is the resolution of rotation.
  */
 const int DEG_DELTA = 3.6;
-// TODO need confirmation
 
 const int HMAX = 0, HMIN = -180;
 const int VMAX = 0, VMIN = -120; 
 
-const int chipSelect = 53; // pin of SD card
+const int chipSelect = 53; // pin of SD card // TODO need confirmation
 
 int horizontalDegree = 0, verticalDegree = 0; // current horizontal/vertical degree. Init position marks (0, 0); clockwise < 0, counterclockwise > 0.
 int maxIntensity, maxHDeg, maxVDeg, maxTime; // maximum light intensity, the corresponding degrees, and the corresponding time.
@@ -67,7 +66,6 @@ void initRotateV() {
     verticalDegree = VMAX;
     verticalDirection = -1;
 }
-
 
 /**
  * Gets the current time in unsigned long.
@@ -215,7 +213,7 @@ void setup() {
 
     BH1750Init(BH1750address); // initialize light intensity sensor
 
-    // 判断是否已经有datalog.csv 如果已经有了 把原来的file重命名为old_data.csv 新建一个datalog.csv
+    // TODO 判断是否已经有datalog.csv 如果已经有了 把原来的file重命名为old_data.csv 新建一个datalog.csv
   
     Serial.println("Initiating...");
 
